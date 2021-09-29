@@ -1,0 +1,167 @@
+<?php
+require_once './vendor/autoload.php';
+
+use TrabalhoPDOMySQL\MySQLConnection;
+
+$bd = new MySQLConnection();
+
+$genero = null;
+
+if($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $comando = $bd->prepare('SELECT * FROM genero WHERE id = :id');
+    $comando->execute([':id' => $_GET['id']]);
+
+    $genero = $comando->fecht(PDO::FETCH_ASSOC);
+
+} else {
+    $comando = $bd->prepare('UPDATE generos SET nome = :nome WHERE id = :id');
+    $comando->execute([':nome'=> $_POST['nome'], 'id' => $_POST['id']]);
+
+    header('Location:/index.php');
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Editar Gênero</title>
+</head>
+<body>
+    <h1>Editar Gênero</h1>
+    <form action="update.php" method="post">
+        <input type="hidden" name="id" value="<?= $genero['id'] ?>"
+        <label for="nome">Nome do Gênero</label>
+        <input type="text" required name="nome" value="<?= $genero['nome'] ?>"
+        <button type="submit">Salvar</button>
+</form>
+</body>
+</html>
+
+<?php
+require_once './vendor/autoload.php';
+
+use TrabalhoPDOMySQL\MySQLConnection;
+
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $bd = new MySQLConnection();
+
+    $comando = $bd->prepare('INSERT INTO generos(nome) VALUES(:nome)');
+    $comando->execute([':nome' => $_POST['nome']]);
+
+    header('Location:/index.php');
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Novo Gênero</title>
+</head>
+<body>
+    <h1>Novo Gênero</h1>
+    <form action="insert.php" method="post">
+        <label for="nome">Nome do Gênero</label>
+        <input type="submit">Salvar</button>
+</form>
+</body>
+</html>
+
+<?php
+require_once './vendor/autoload.php';
+use PDO;
+
+use TrabalhoPDOMySQL\MySQLConnection; //PDO
+$bd = new MYSQLConnection(); //PDO ('mysql:host=localhost;dbname=biblioteca', 'root', '');
+
+$comando = $bd->prepare('SELECT * FROM generos');
+$comando->execute();
+$generos = $comando->fetchAll(PDO::FETCH_ASSOC);
+
+?>
+
+<!Doctype html>
+<html lang="pt-br">
+    <head>
+        <meta charset="utf-8">
+        <title>Biblioteca</title>
+    </head>
+    <body>
+        <a href="insert.php">Novo Gênero</a>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>&nbsp;</th>
+            </tr>
+            <?php foreach($generos as $g): ?>
+                <tr>
+                    <td><?= $g['id']?></td>
+                    <td><?= $g['nome']?></td>
+                    <td>
+                        <a href="update.php?id=<?= $g['id'] ?>">Editar</a>
+                        <a href="delete.php?id=<?= $g['id'] ?>">Ecluir</a>
+                </tr>
+            <?php endforeach ?>
+        </table>
+    </body>
+</html>
+
+<?php
+require_once './vendor/autoload.php';
+
+use TrabalhoPDOMySQL\MySQLConnection;
+
+$bd = new MySQLConnection();
+
+$genero = null;
+
+if($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $comando = $bd->prepare('SELECT * FROM genero WHERE id = :id');
+    $comando->execute([':id' => $_GET['id']]);
+
+    $genero = $comando->fecht(PDO::FETCH_ASSOC);
+
+} else {
+    $comando = $bd->prepare('DELETE FROM generos WHERE id = :id WHERE id = :id');
+    $comando->execute([':id'=> $_POST['id']]);
+
+    header('Location:/index.php');
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Remover Gênero</title>
+</head>
+<body>
+    <h1>Remover Gênero</h1>
+    <p>Tem certeza que deseja remover o gênero "<? $genero['nome'] ?>" ?</p>
+    <form action="delete.php" method="post">
+        <input type="hidden" name="id" value="<?= $genero['id'] ?>" />
+        <button type="submit">Excluir</button>
+        </form>
+    </body>
+</html>
+
+{
+    "autoload": {
+        "psr-4": {
+            "TrabalhoPDOMySQL\\" : "src/"
+        }
+    }
+}
+
+<?php
+namespace TrabalhoPDOMySQL;
+
+class MYSQLConnection extends \PDO {
+    public function __construct() {
+        parent::__construct('mysql:host=localhost;dbaname=biblioteca', 'root','');
+    }
+}
